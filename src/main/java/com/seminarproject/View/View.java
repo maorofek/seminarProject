@@ -84,7 +84,7 @@ public class View {
         root.setCenter(splitPane);
 
 
-        Scene scene = new Scene(root, 1200, 900);
+        Scene scene = new Scene(root, 1350, 900);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Elazar shtok");
         primaryStage.show();

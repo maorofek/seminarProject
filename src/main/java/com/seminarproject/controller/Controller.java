@@ -9,10 +9,5 @@ public class Controller {
 
     public Controller(View view) {
         this.view = view;
-
-
-
     }
-
-
 }
