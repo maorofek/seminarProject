@@ -3,7 +3,6 @@ package com.seminarproject.View;
 import com.seminarproject.Program;
 import com.seminarproject.model.Person;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,7 +13,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -22,7 +20,6 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 public class View {
     Stage primaryStage;
@@ -37,8 +34,8 @@ public class View {
 
     AnchorPane circleSpace;
     public int defaultSize;
-    private int radio;
-    private int radioLbl;
+    private int radius;
+    private int radiusLabel;
     private int winnerNumber;
 
     private List<Person> people;
@@ -145,8 +142,8 @@ public class View {
         image = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/odin.png")),
                 50, 50, true, true);
         defaultSize = getSliderValue();
-        radio = 230;
-        radioLbl = 40;
+        radius = 230;
+        radiusLabel = 40;
         people.clear();
         for (int i = 0; i < defaultSize; i++) {
             addSoldier();
@@ -162,12 +159,13 @@ public class View {
     public void updateCircle() {
         for (int i = 0; i < people.size(); i++) {
             double angle = (((double) i) / people.size()) * 2 * Math.PI;
-            double xpos = radio * Math.cos(angle) + 300;
-            double ypos = radio * Math.sin(angle) + 260;
-            double lblxpos = radioLbl * Math.cos(angle) + 15;
-            double lblypos = radioLbl * Math.sin(angle) + 20;
-            circleSpace.getChildren().get(i).setLayoutX(xpos);
-            circleSpace.getChildren().get(i).setLayoutY(ypos);
+            double xPos = radius * Math.cos(angle) + 300;
+            double yPos = radius * Math.sin(angle) + 260;
+            double labelXPos = radiusLabel * Math.cos(angle) + 15;
+            double labelYPos = radiusLabel * Math.sin(angle) + 20;
+
+            circleSpace.getChildren().get(i).setLayoutX(xPos);
+            circleSpace.getChildren().get(i).setLayoutY(yPos);
 
             if (people.get(i).isAlive()) {
                 circleSpace.getChildren().get(i).setOpacity(1);
@@ -176,8 +174,8 @@ public class View {
             }
 
             AnchorPane plx = (AnchorPane) circleSpace.getChildren().get(i);
-            plx.getChildren().get(0).setLayoutX(lblxpos);
-            plx.getChildren().get(0).setLayoutY(lblypos);
+            plx.getChildren().get(0).setLayoutX(labelXPos);
+            plx.getChildren().get(0).setLayoutY(labelYPos);
         }
     }
 
