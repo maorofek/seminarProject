@@ -20,7 +20,7 @@ public class Controller {
                     .build();
 
             System.out.println(game);
-            int winner = game.getLastSurvivor();
+            int winner = game.getLastSurvivor(view.getStartingAtValue() + 1);
             view.setWinnerNumber(winner);
             view.markSurvivor(winner);
         });

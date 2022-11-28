@@ -15,8 +15,8 @@ public class Game {
 
     }
 
-    public int getLastSurvivor() {
-        return IntStream.range(1, people.size() + 1).reduce(0, (x, y) -> (x + 1) % y) + 1;
+    public int getLastSurvivor(int k) {
+        return IntStream.range(1, people.size() + 1).reduce(0, (x, y) -> (x + k) % y) + 1;
     }
 
     @Override
