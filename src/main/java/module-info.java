@@ -11,4 +11,5 @@ module com.seminarproject {
 
     opens com.seminarproject to javafx.fxml;
     exports com.seminarproject;
+
 }

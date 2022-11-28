@@ -12,7 +12,15 @@ public class Person {
         return isAlive;
     }
 
-    public void kill(Person s) {
-        s.isAlive = false;
+    public void kill() {
+        isAlive = false;
+    }
+
+    //TODO add number to person
+    @Override
+    public String toString() {
+        return "Person{" +
+                "isAlive=" + isAlive +
+                '}';
     }
 }
