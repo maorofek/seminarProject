@@ -145,6 +145,7 @@ public class View {
         radius = 230;
         radiusLabel = 40;
         people.clear();
+        circleSpace.getChildren().clear();
         for (int i = 0; i < defaultSize; i++) {
             addSoldier();
         }
