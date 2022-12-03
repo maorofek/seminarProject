@@ -29,14 +29,14 @@ public class View {
     SpinnerValueFactory<Integer> howManySurvive;
     RadioButton clockwise;
 
-    Image image;
+    Image soldierImage;
 
     AnchorPane circleSpace;
     private final int imageRadius;
     private final int labelRadius;
 
     private List<Person> people;
-    private Runnable gameUpdater;
+    private Runnable gameInitializer;
 
     public void setPeople(List<Person> people) {
         this.people = people;
@@ -124,7 +124,7 @@ public class View {
 
         hBox.setAlignment(Pos.BOTTOM_CENTER);
 
-        image = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/odin.png")),
+        soldierImage = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/odin.png")),
                 50, 50, true, true);
         imageRadius = 230;
         labelRadius = 40;
@@ -144,7 +144,7 @@ public class View {
     }
 
     public void onSliderChanged() {
-        gameUpdater.run();
+        gameInitializer.run();
         initSoldierImages();
         updateCircle();
     }
@@ -187,7 +187,7 @@ public class View {
     }
 
     public AnchorPane makeBox(int soldierNumber, double xpos, double ypos) {
-        ImageView personImage = new ImageView(image);
+        ImageView personImage = new ImageView(soldierImage);
         Label lblHead = new Label("" + soldierNumber);
         lblHead.setStyle("-fx-text-fill: white;");
         lblHead.setFont(Font.font("", FontWeight.BOLD, 12));
@@ -223,6 +223,6 @@ public class View {
     }
 
     public void addGameInitializer(Runnable gameUpdater) {
-        this.gameUpdater = gameUpdater;
+        this.gameInitializer = gameUpdater;
     }
 }
