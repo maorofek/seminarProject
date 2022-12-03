@@ -17,7 +17,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,12 +32,15 @@ public class View {
     Image image;
 
     AnchorPane circleSpace;
-    public int defaultSize;
-    private int radius;
-    private int radiusLabel;
-    private int winnerNumber;
+    private final int imageRadius;
+    private final int labelRadius;
 
     private List<Person> people;
+    private Runnable gameUpdater;
+
+    public void setPeople(List<Person> people) {
+        this.people = people;
+    }
 
     public View(Stage _primaryStage) {
         primaryStage = _primaryStage;
@@ -57,7 +59,6 @@ public class View {
         leftVBox.setStyle("-fx-background-color: #212121;");
 
 
-        people = new ArrayList<>();
         circleSpace = new AnchorPane();
         circleSpace.setPrefHeight(leftVBox.getPrefHeight());
         circleSpace.setPrefWidth(leftVBox.getPrefWidth());
@@ -78,8 +79,7 @@ public class View {
 
         slider.valueProperty().addListener((observableValue, number, t1) -> {
             sliderValue.setText(String.format("%.0f", t1.floatValue()));
-            init();
-            updateCircle();
+            onSliderChanged();
         });
 
         startingAt = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10);
@@ -124,7 +124,12 @@ public class View {
 
         hBox.setAlignment(Pos.BOTTOM_CENTER);
 
-        init();
+        image = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/odin.png")),
+                50, 50, true, true);
+        imageRadius = 230;
+        labelRadius = 40;
+
+        initSoldierImages();
 
         SplitPane splitPane = new SplitPane();
         splitPane.getItems().addAll(leftVBox, rightVBox);
@@ -138,32 +143,33 @@ public class View {
         primaryStage.show();
     }
 
-    private void init() {
-        image = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/odin.png")),
-                50, 50, true, true);
-        defaultSize = getSliderValue();
-        radius = 230;
-        radiusLabel = 40;
-        people.clear();
-        circleSpace.getChildren().clear();
-        for (int i = 0; i < defaultSize; i++) {
-            addSoldier();
-        }
-    }
-
-    public void addSoldier() {
-        people.add(new Person());
-        circleSpace.getChildren().add(makeBox(image, 300, 240));
+    public void onSliderChanged() {
+        gameUpdater.run();
+        initSoldierImages();
         updateCircle();
     }
 
+    private void initSoldierImages() {
+        circleSpace.getChildren().clear();
+        for (int i = 0; i < getSliderValue(); i++) {
+            addSoldierImage(i + 1);
+        }
+    }
+
+    public void addSoldierImage(int soldierNumber) {
+        circleSpace.getChildren().add(makeBox(soldierNumber, 300, 240));
+    }
+
     public void updateCircle() {
+        if (people == null) {
+            return;
+        }
         for (int i = 0; i < people.size(); i++) {
             double angle = (((double) i) / people.size()) * 2 * Math.PI;
-            double xPos = radius * Math.cos(angle) + 300;
-            double yPos = radius * Math.sin(angle) + 260;
-            double labelXPos = radiusLabel * Math.cos(angle) + 15;
-            double labelYPos = radiusLabel * Math.sin(angle) + 20;
+            double xPos = imageRadius * Math.cos(angle) + 300;
+            double yPos = imageRadius * Math.sin(angle) + 260;
+            double labelXPos = labelRadius * Math.cos(angle) + 15;
+            double labelYPos = labelRadius * Math.sin(angle) + 20;
 
             circleSpace.getChildren().get(i).setLayoutX(xPos);
             circleSpace.getChildren().get(i).setLayoutY(yPos);
@@ -180,19 +186,9 @@ public class View {
         }
     }
 
-    public void markSurvivor(int number) {
-        int index = number - 1;
-        for (int i = 0; i < people.size(); i++) {
-            if (i != index) {
-                people.get(i).kill();
-            }
-        }
-        updateCircle();
-    }
-
-    public AnchorPane makeBox(Image img, double xpos, double ypos) {
-        ImageView personImage = new ImageView(img);
-        Label lblHead = new Label("" + people.size());
+    public AnchorPane makeBox(int soldierNumber, double xpos, double ypos) {
+        ImageView personImage = new ImageView(image);
+        Label lblHead = new Label("" + soldierNumber);
         lblHead.setStyle("-fx-text-fill: white;");
         lblHead.setFont(Font.font("", FontWeight.BOLD, 12));
         AnchorPane anchorSoldier = new AnchorPane();
@@ -226,8 +222,7 @@ public class View {
         stopButton.setOnMouseClicked(eventHandler);
     }
 
-    public void setWinnerNumber(int winnerNumber) {
-        this.winnerNumber = winnerNumber;
-        System.out.println("winner number is " + winnerNumber);
+    public void addGameInitializer(Runnable gameUpdater) {
+        this.gameUpdater = gameUpdater;
     }
 }
