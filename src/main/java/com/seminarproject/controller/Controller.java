@@ -29,7 +29,7 @@ public class Controller {
             view.setPeople(game.getPeople());
         };
 
-        view.addGameInitializer(gameInitializer);
+        view.setGameInitializer(gameInitializer);
 
         view.addEventHandlerToStartButton(event -> {
             // TODO should start the game loop now

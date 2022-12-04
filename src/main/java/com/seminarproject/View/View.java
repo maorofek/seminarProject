@@ -222,7 +222,7 @@ public class View {
         stopButton.setOnMouseClicked(eventHandler);
     }
 
-    public void addGameInitializer(Runnable gameUpdater) {
+    public void setGameInitializer(Runnable gameUpdater) {
         this.gameInitializer = gameUpdater;
     }
 }
