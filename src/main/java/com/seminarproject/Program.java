@@ -1,14 +1,9 @@
 package com.seminarproject;
 
 import com.seminarproject.controller.Controller;
-import com.seminarproject.View.View;
+import com.seminarproject.view.View;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.stage.Stage;
-
-
-import java.io.IOException;
 
 public class Program extends Application {
 

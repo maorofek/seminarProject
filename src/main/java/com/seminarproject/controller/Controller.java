@@ -1,6 +1,6 @@
 package com.seminarproject.controller;
 
-import com.seminarproject.View.View;
+import com.seminarproject.view.View;
 import com.seminarproject.model.Game;
 import com.seminarproject.model.Game.GameBuilder;
 

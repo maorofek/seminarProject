@@ -1,4 +1,4 @@
-package com.seminarproject.View;
+package com.seminarproject.view;
 
 import com.seminarproject.Program;
 import com.seminarproject.model.Person;
