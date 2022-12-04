@@ -2,92 +2,113 @@ package com.seminarproject.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Game {
-    private int startingAt;
+    private int currentPosition;
     private int howManyToKeep;
     private int jumpSize;
     private boolean clockwise;
     private List<Person> people;
 
-    public int getStartingAt() {
-        return startingAt;
-    }
-
-    public int getHowManyToKeep() {
-        return howManyToKeep;
-    }
-
-    public int getJumpSize() {
-        return jumpSize;
-    }
-
-    public boolean isClockwise() {
-        return clockwise;
-    }
-
     public List<Person> getPeople() {
         return people;
     }
 
+    private Game() {} // private constructor to force using the builder
 
-    private Game() {
-    }
-
+    /**
+     * for debugging purposes!
+     * simulate the game with only one survivor and return the survivor's index (1-based).
+     *
+     * @param k the jump size on each iteration.
+     * @return the survivor's index (1-based).
+     */
     public int getLastSurvivor(int k) {
         return IntStream.range(1, people.size() + 1).reduce(0, (x, y) -> (x + k) % y) + 1;
     }
 
-    public void markSurvivor(int number) {
-        int index = number - 1;
-        for (int i = 0; i < people.size(); i++) {
-            if (i != index) {
-                people.get(i).kill();
-            }
+    /**
+     * for debugging purposes!
+     *
+     * @return the list of indices (1-based) of the people who are alive.
+     */
+    public List<Integer> getSurvivorNumbers() {
+        return IntStream.range(0, people.size())
+                .filter(i -> people.get(i).isAlive())
+                .mapToObj(i -> i + 1)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * play the entire game until the appropriate number of survivors is reached.
+     */
+    public void play() {
+        while (!isGameOver()) {
+            killNext();
         }
     }
 
+    /**
+     * Check if the game is over.
+     *
+     * @return if number of survivors is less than / equal to howManyToKeep.
+     */
     public boolean isGameOver() {
         return people.stream().filter(Person::isAlive).count() <= howManyToKeep;
     }
 
+    /**
+     * kill the next person in the game.
+     */
     public void killNext() {
         if (isGameOver()) {
             return;
         }
+        people.get(getNextAliveIndex()).kill();
+        currentPosition = getNextAliveIndex();
+    }
 
-        if (clockwise) {
-            startingAt = (startingAt + jumpSize) % people.size();
-        } else {
-            startingAt = (startingAt - jumpSize) % people.size();
-            if (startingAt < 0) {
-                startingAt += people.size();
+    /**
+     * @return index of the next alive person after jumping from the current position.
+     */
+    int getNextAliveIndex() {
+        int index = currentPosition;
+        boolean jumped = false;
+        do {
+            if (clockwise) {
+                index = (index + (jumped ? 1 : jumpSize)) % people.size();
+            } else {
+                index = (index - (jumped ? 1 : jumpSize) + people.size()) % people.size();
             }
-        }
-
-        people.get(startingAt).kill();
+            jumped = true;
+        } while (!people.get(index).isAlive());
+        return index;
     }
 
     @Override
     public String toString() {
         return "Game{" +
                 "numberOfPeople=" + people.size() +
-                ", startingAt=" + startingAt +
+                ", startingAt=" + currentPosition +
                 ", howManySurvive=" + howManyToKeep +
                 ", clockwise=" + clockwise +
+                ", jumpSize=" + jumpSize +
                 ", people=" + people +
                 '}';
     }
 
+    /**
+     * Builder class for Game.
+     * makes creating complex object much more readable and easier to maintain.
+     */
     public static final class GameBuilder {
         private int numberOfPeople;
         private int startingAt;
         private int howManyToKeep;
         private boolean clockwise;
         private int jumpSize;
-
-        private List<Person> people;
 
         private GameBuilder() {
         }
@@ -121,14 +142,19 @@ public class Game {
             return this;
         }
 
+        /**
+         * Assemble all given parameters and create a Game object.
+         *
+         * @return a Game object.
+         */
         public Game build() {
             Game game = new Game();
             game.clockwise = this.clockwise;
-            game.startingAt = this.startingAt;
+            game.currentPosition = this.startingAt - 1;
             game.howManyToKeep = this.howManyToKeep;
             game.jumpSize = this.jumpSize;
             if (this.jumpSize == 0) {
-                game.jumpSize = startingAt;
+                game.jumpSize = 1;
             }
 
             game.people = new ArrayList<>();

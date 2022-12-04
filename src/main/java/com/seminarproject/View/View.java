@@ -38,9 +38,32 @@ public class View {
     private List<Person> people;
     private Runnable gameInitializer;
 
+    // ################### getters and setters ###################
+    public boolean isClockWiseSelected() {
+        return clockwise.isSelected();
+    }
+
+    public int getSliderValue() {
+        return Integer.parseInt(String.format("%.0f", slider.getValue()));
+    }
+
+    public Integer getHowManySurvive() {
+        return howManySurvive.getValue();
+    }
+
+    public Integer getStartingAtValue() {
+        return startingAt.getValue();
+    }
+
     public void setPeople(List<Person> people) {
         this.people = people;
     }
+
+    public void setGameInitializer(Runnable gameInitializer) {
+        this.gameInitializer = gameInitializer;
+    }
+
+    // ##########################################################
 
     public View(Stage _primaryStage) {
         primaryStage = _primaryStage;
@@ -98,7 +121,10 @@ public class View {
         startButton = new Button("Start");
         stopButton = new Button("Stop");
 
-        buttonsVBox.getChildren().addAll(startButton, stopButton);
+        buttonsVBox.getChildren().addAll(
+                startButton
+//                stopButton // only in the next version... :)
+        );
 
         clockwise = new RadioButton("clockwise");
         clockwise.setSelected(true);
@@ -124,10 +150,10 @@ public class View {
 
         hBox.setAlignment(Pos.BOTTOM_CENTER);
 
-        soldierImage = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/odin.png")),
-                50, 50, true, true);
+        soldierImage = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/gimli.png")),
+                                 50, 50, true, true);
         imageRadius = 230;
-        labelRadius = 40;
+        labelRadius = 50;
 
         initSoldierImages();
 
@@ -143,6 +169,9 @@ public class View {
         primaryStage.show();
     }
 
+    /**
+     * When slider value is changed we need to update the current state accordingly.
+     */
     public void onSliderChanged() {
         gameInitializer.run();
         initSoldierImages();
@@ -152,14 +181,13 @@ public class View {
     private void initSoldierImages() {
         circleSpace.getChildren().clear();
         for (int i = 0; i < getSliderValue(); i++) {
-            addSoldierImage(i + 1);
+            circleSpace.getChildren().add(makeBox(i + 1, 300, 240));
         }
     }
 
-    public void addSoldierImage(int soldierNumber) {
-        circleSpace.getChildren().add(makeBox(soldierNumber, 300, 240));
-    }
-
+    /**
+     * Use the current people list in the game state to draw them as a circle.
+     */
     public void updateCircle() {
         if (people == null) {
             return;
@@ -186,43 +214,39 @@ public class View {
         }
     }
 
-    public AnchorPane makeBox(int soldierNumber, double xpos, double ypos) {
+    /**
+     * draw a box with an image and a label for a person.
+     * @param personNumber the number of the person (1-based index).
+     * @param xPos x position of the box
+     * @param yPos y position of the box
+     * @return the box
+     */
+    public AnchorPane makeBox(int personNumber, double xPos, double yPos) {
         ImageView personImage = new ImageView(soldierImage);
-        Label lblHead = new Label("" + soldierNumber);
+        Label lblHead = new Label("" + personNumber);
         lblHead.setStyle("-fx-text-fill: white;");
         lblHead.setFont(Font.font("", FontWeight.BOLD, 12));
         AnchorPane anchorSoldier = new AnchorPane();
-        anchorSoldier.setLayoutX(xpos);
-        anchorSoldier.setLayoutY(ypos);
+        anchorSoldier.setLayoutX(xPos);
+        anchorSoldier.setLayoutY(yPos);
         anchorSoldier.getChildren().addAll(lblHead, personImage);
         return anchorSoldier;
     }
 
-    public boolean isClockWiseSelected() {
-        return clockwise.isSelected();
-    }
-
-    public int getSliderValue() {
-        return Integer.parseInt(String.format("%.0f", slider.getValue()));
-    }
-
-    public Integer getSurvivesNumber() {
-        return howManySurvive.getValue();
-    }
-
-    public Integer getStartingAtValue() {
-        return startingAt.getValue();
-    }
-
+    /**
+     * Add event handler to start button
+     * @param eventHandler the event handler
+     */
     public void addEventHandlerToStartButton(EventHandler<MouseEvent> eventHandler) {
         startButton.setOnMouseClicked(eventHandler);
     }
 
+    /**
+     * Add event handler to stop button
+     * @param eventHandler the event handler
+     */
     public void addEventHandlerToStopButton(EventHandler<MouseEvent> eventHandler) {
         stopButton.setOnMouseClicked(eventHandler);
     }
 
-    public void setGameInitializer(Runnable gameUpdater) {
-        this.gameInitializer = gameUpdater;
-    }
 }

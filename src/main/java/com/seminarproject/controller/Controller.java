@@ -7,45 +7,47 @@ import com.seminarproject.model.Game.GameBuilder;
 public class Controller {
     Game game;
 
+    /**
+     * Our app's main controller, which is responsible for connecting the model and the view.
+     * @param view The view managing class of the app.
+     */
     public Controller(View view) {
         /*
-               TODO:
-               1. write single iteration of the game (model + view)
-               2. write game loop (model + view)
-               3. make spinners max value dynamic
+               TODO for next version:
+               1. put sleep and view update on every single game iteration.
+               2. make spinners max value dynamic.
+               3. add support for jumpSize as input from user.
 
          */
+
+        Runnable updatePeopleInView = () -> view.setPeople(game.getPeople());
 
         Runnable gameInitializer = () -> {
             // update model
             game = GameBuilder.aGameWith()
                     .numberOfPeople(view.getSliderValue())
                     .startingAt(view.getStartingAtValue())
-                    .howManyToKeep(view.getSurvivesNumber())
+                    .howManyToKeep(view.getHowManySurvive())
                     .clockwise(view.isClockWiseSelected())
                     .build();
 
             // update view
-            view.setPeople(game.getPeople());
+            updatePeopleInView.run();
         };
 
         view.setGameInitializer(gameInitializer);
 
         view.addEventHandlerToStartButton(event -> {
-            // TODO should start the game loop now
-
-            System.out.println(game);
-            int winner = game.getLastSurvivor(view.getStartingAtValue() + 1);
-            System.out.println("winner number is " + winner);
-
-            game.markSurvivor(winner);
+            gameInitializer.run();
+            game.play();
+            updatePeopleInView.run();
             view.updateCircle();
         });
 
-        view.addEventHandlerToStopButton(event -> {
-            // TODO add logic
-            System.out.println("stop");
-        });
+//        view.addEventHandlerToStopButton(event -> { // only in the next version... :)
+//            // TODO add logic
+//            System.out.println("stop");
+//        });
 
 
         view.onSliderChanged();
