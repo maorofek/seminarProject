@@ -165,7 +165,7 @@ public class View {
 
         Scene scene = new Scene(root, 1350, 579);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Elazar shtok");
+        primaryStage.setTitle("Josephus");
         primaryStage.show();
     }
 
