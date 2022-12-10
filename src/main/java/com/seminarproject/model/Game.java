@@ -17,16 +17,6 @@ public class Game {
 
     private Game() {} // private constructor to force using the builder
 
-    /**
-     * for debugging purposes!
-     * simulate the game with only one survivor and return the survivor's index (1-based).
-     *
-     * @param k the jump size on each iteration.
-     * @return the survivor's index (1-based).
-     */
-    public int getLastSurvivor(int k) {
-        return IntStream.range(1, people.size() + 1).reduce(0, (x, y) -> (x + k) % y) + 1;
-    }
 
     /**
      * @return the list of indices (1-based) of the people who are alive.
@@ -38,14 +28,6 @@ public class Game {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * play the entire game until the appropriate number of survivors is reached.
-     */
-    public void play() {
-        while (!isGameOver()) {
-            killNext();
-        }
-    }
 
     /**
      * Check if the game is over.

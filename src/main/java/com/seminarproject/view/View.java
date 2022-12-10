@@ -3,6 +3,7 @@ package com.seminarproject.view;
 import com.seminarproject.Program;
 import com.seminarproject.model.Person;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -82,9 +84,11 @@ public class View {
 
         messageLbl = new Label();
         messageLbl.setFont(Font.font("Helvetica", FontWeight.BOLD, 15));
+        messageLbl.setWrapText(true);
+        messageLbl.setPrefWidth(300);
 
         iterationDelayComboBox = new ComboBox<>();
-        iterationDelayComboBox.getItems().addAll(100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000);
+        iterationDelayComboBox.getItems().addAll(1, 100, 200, 500, 1000, 2000, 5000);
         iterationDelayComboBox.setValue(1000);
 
 
@@ -118,10 +122,9 @@ public class View {
         leftVBox.setStyle("-fx-background-color: #212121;");
 
         circleSpace = new AnchorPane();
-        circleSpace.setPrefHeight(leftVBox.getPrefHeight());
-        circleSpace.setPrefWidth(leftVBox.getPrefWidth());
         circleSpace.setStyle("-fx-background-color: #212121;");
         leftVBox.getChildren().add(circleSpace);
+        leftVBox.setPadding(new Insets(10, 10, 10, 100));
 
         slider = new Slider(0, 50, 7);
         slider.setPrefWidth(350);
