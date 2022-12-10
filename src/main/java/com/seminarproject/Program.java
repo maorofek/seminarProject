@@ -12,10 +12,6 @@ public class Program extends Application {
         new Controller(new View(stage));
     }
 
-//    public static Parent loadFXML(String fxml) throws IOException {
-//        FXMLLoader fxmlLoader = new FXMLLoader(Program.class.getResource(fxml + ".fxml"));
-//        return fxmlLoader.load();
-//    }
 
     public static void main(String[] args) {
         launch();

@@ -3,6 +3,7 @@ package com.seminarproject.view;
 import com.seminarproject.Program;
 import com.seminarproject.model.Person;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -28,6 +29,8 @@ public class View {
     SpinnerValueFactory<Integer> startingAt;
     SpinnerValueFactory<Integer> howManySurvive;
     RadioButton clockwise;
+
+    Label message;
 
     Image soldierImage;
 
@@ -55,6 +58,10 @@ public class View {
         return startingAt.getValue();
     }
 
+    public void setMessage(String message) {
+        this.message.setText(message);
+    }
+
     public void setPeople(List<Person> people) {
         this.people = people;
     }
@@ -71,12 +78,14 @@ public class View {
 
         VBox leftVBox = new VBox();
         VBox rightVBox = new VBox();
+
         VBox buttonsVBox = new VBox();
         VBox radioButtonsVBox = new VBox();
         VBox spinnerVBox = new VBox();
         VBox sliderVBox = new VBox();
-        HBox hBox = new HBox();
-        HBox hBox2 = new HBox();
+        HBox buttonsHbox = new HBox();
+        HBox sliderHbox = new HBox();
+        VBox messageVBox = new VBox();
 
         rightVBox.setStyle("-fx-background-color: #9698a4 ;");
         leftVBox.setStyle("-fx-background-color: #212121;");
@@ -97,8 +106,11 @@ public class View {
         slider.setBlockIncrement(1);
 
         Label sliderValue = new Label("7");
-        Label startAt = new Label("start location");
-        Label survivesNumber = new Label("How many will survive");
+        message = new Label();
+        message.setFont(Font.font("Helvetica", FontWeight.BOLD, 15));
+        messageVBox.getChildren().add(message);
+        messageVBox.setAlignment(Pos.CENTER);
+        messageVBox.setPadding(new Insets(50, 0, 0, 0));
 
         slider.valueProperty().addListener((observableValue, number, t1) -> {
             sliderValue.setText(String.format("%.0f", t1.floatValue()));
@@ -111,12 +123,13 @@ public class View {
         howManySurvive = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10);
         howManySurvive.setValue(1);
 
-        rightVBox.getChildren().addAll(hBox2, hBox);
+
+        rightVBox.getChildren().addAll(sliderHbox, buttonsHbox, messageVBox);
         sliderVBox.getChildren().addAll(sliderValue, slider);
         sliderVBox.setAlignment(Pos.CENTER);
 
-        hBox2.getChildren().addAll(sliderVBox);
-        hBox2.setAlignment(Pos.TOP_CENTER);
+        sliderHbox.getChildren().addAll(sliderVBox);
+        sliderHbox.setAlignment(Pos.TOP_CENTER);
 
         startButton = new Button("Start");
         stopButton = new Button("Stop");
@@ -134,21 +147,22 @@ public class View {
         counterClockwise.setToggleGroup(toggleGroup);
         radioButtonsVBox.getChildren().addAll(clockwise, counterClockwise);
 
-        Spinner<Integer> spinner = new Spinner<>(startingAt);
-        spinnerVBox.getChildren().add(startAt);
-        spinnerVBox.getChildren().add(spinner);
-        spinnerVBox.getChildren().add(survivesNumber);
-        spinnerVBox.getChildren().add(new Spinner<>(howManySurvive));
+        spinnerVBox.getChildren().addAll(
+                new Label("start location"),
+                new Spinner<>(startingAt),
+                new Label("How many will survive"),
+                new Spinner<>(howManySurvive)
+        );
 
-        hBox.setSpacing(25);
-        hBox.getChildren().addAll(buttonsVBox, radioButtonsVBox, spinnerVBox);
+        buttonsHbox.setSpacing(25);
+        buttonsHbox.getChildren().addAll(buttonsVBox, radioButtonsVBox, spinnerVBox);
 
         buttonsVBox.setSpacing(10);
         radioButtonsVBox.setSpacing(10);
 
         rightVBox.setAlignment(Pos.CENTER);
 
-        hBox.setAlignment(Pos.BOTTOM_CENTER);
+        buttonsHbox.setAlignment(Pos.BOTTOM_CENTER);
 
         soldierImage = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/gimli.png")),
                                  50, 50, true, true);
@@ -163,9 +177,10 @@ public class View {
 
         root.setCenter(splitPane);
 
-        Scene scene = new Scene(root, 1350, 579);
+        Scene scene = new Scene(root, 1350, 650);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Josephus");
+        primaryStage.setAlwaysOnTop(true);
         primaryStage.show();
     }
 

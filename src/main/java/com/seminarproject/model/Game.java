@@ -8,7 +8,6 @@ import java.util.stream.IntStream;
 public class Game {
     private int currentPosition;
     private int howManyToKeep;
-    private int jumpSize;
     private boolean clockwise;
     private List<Person> people;
 
@@ -30,8 +29,6 @@ public class Game {
     }
 
     /**
-     * for debugging purposes!
-     *
      * @return the list of indices (1-based) of the people who are alive.
      */
     public List<Integer> getSurvivorNumbers() {
@@ -75,14 +72,12 @@ public class Game {
      */
     int getNextAliveIndex() {
         int index = currentPosition;
-        boolean jumped = false;
         do {
             if (clockwise) {
-                index = (index + (jumped ? 1 : jumpSize)) % people.size();
+                index = (index + 1) % people.size();
             } else {
-                index = (index - (jumped ? 1 : jumpSize) + people.size()) % people.size();
+                index = (index - 1 + people.size()) % people.size();
             }
-            jumped = true;
         } while (!people.get(index).isAlive());
         return index;
     }
@@ -94,7 +89,6 @@ public class Game {
                 ", startingAt=" + currentPosition +
                 ", howManySurvive=" + howManyToKeep +
                 ", clockwise=" + clockwise +
-                ", jumpSize=" + jumpSize +
                 ", people=" + people +
                 '}';
     }
@@ -108,7 +102,6 @@ public class Game {
         private int startingAt;
         private int howManyToKeep;
         private boolean clockwise;
-        private int jumpSize;
 
         private GameBuilder() {
         }
@@ -137,11 +130,6 @@ public class Game {
             return this;
         }
 
-        public GameBuilder jumpSize(int jumpSize) {
-            this.jumpSize = jumpSize;
-            return this;
-        }
-
         /**
          * Assemble all given parameters and create a Game object.
          *
@@ -152,10 +140,6 @@ public class Game {
             game.clockwise = this.clockwise;
             game.currentPosition = this.startingAt - 1;
             game.howManyToKeep = this.howManyToKeep;
-            game.jumpSize = this.jumpSize;
-            if (this.jumpSize == 0) {
-                game.jumpSize = 1;
-            }
 
             game.people = new ArrayList<>();
             for (int i = 0; i < numberOfPeople; i++) {

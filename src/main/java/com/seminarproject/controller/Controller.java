@@ -3,20 +3,28 @@ package com.seminarproject.controller;
 import com.seminarproject.view.View;
 import com.seminarproject.model.Game;
 import com.seminarproject.model.Game.GameBuilder;
+import javafx.application.Platform;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Controller {
     Game game;
+    Timer timer;
+    boolean running = false;
 
     /**
      * Our app's main controller, which is responsible for connecting the model and the view.
+     *
      * @param view The view managing class of the app.
      */
     public Controller(View view) {
+        timer = new Timer();
+
         /*
                TODO for next version:
-               1. put sleep and view update on every single game iteration.
-               2. make spinners max value dynamic.
-               3. add support for jumpSize as input from user.
+               1. make spinners max value dynamic.
+               2. make sleep between iterations a user input.
 
          */
 
@@ -35,13 +43,28 @@ public class Controller {
             updatePeopleInView.run();
         };
 
+        Runnable play = () -> {
+            timer.cancel();
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    game.killNext();
+                    updatePeopleInView.run();
+                    view.updateCircle();
+                    if (game.isGameOver()) {
+                        timer.cancel();
+                        Platform.runLater(() -> view.setMessage("Game Over!\nThe survivor numbers are: " + game.getSurvivorNumbers()));
+                    }
+                }
+            }, 0, 200);
+        };
+
         view.setGameInitializer(gameInitializer);
 
         view.addEventHandlerToStartButton(event -> {
             gameInitializer.run();
-            game.play();
-            updatePeopleInView.run();
-            view.updateCircle();
+            play.run();
         });
 
 //        view.addEventHandlerToStopButton(event -> { // only in the next version... :)
