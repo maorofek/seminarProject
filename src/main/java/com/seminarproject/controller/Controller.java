@@ -5,12 +5,14 @@ import com.seminarproject.model.Game;
 import com.seminarproject.model.Game.GameBuilder;
 import javafx.application.Platform;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class Controller {
     Game game;
     Timer timer;
+    int iterationDelay = 1000;
     boolean running = false;
 
     /**
@@ -19,19 +21,18 @@ public class Controller {
      * @param view The view managing class of the app.
      */
     public Controller(View view) {
-        timer = new Timer();
-
         /*
-               TODO for next version:
-               1. make spinners max value dynamic.
-               2. make sleep between iterations a user input.
-
+            TODO: maybe add stop / pause button.
          */
+
+        timer = new Timer();
 
         Runnable updatePeopleInView = () -> view.setPeople(game.getPeople());
 
         Runnable gameInitializer = () -> {
             // update model
+            timer.cancel();
+            iterationDelay = view.getIterationDelay();
             game = GameBuilder.aGameWith()
                     .numberOfPeople(view.getSliderValue())
                     .startingAt(view.getStartingAtValue())
@@ -40,6 +41,7 @@ public class Controller {
                     .build();
 
             // update view
+            view.setMessage("");
             updatePeopleInView.run();
         };
 
@@ -54,10 +56,18 @@ public class Controller {
                     view.updateCircle();
                     if (game.isGameOver()) {
                         timer.cancel();
-                        Platform.runLater(() -> view.setMessage("Game Over!\nThe survivor numbers are: " + game.getSurvivorNumbers()));
+
+                        List<Integer> survivorNumbers = game.getSurvivorNumbers();
+                        String survivorNumbersString = String.format(
+                                "The survivor number%s %s",
+                                survivorNumbers.size() > 1 ? "s are" : " is",
+                                survivorNumbers.size() > 1 ? survivorNumbers.toString() : survivorNumbers.get(0)
+                        );
+
+                        Platform.runLater(() -> view.setMessage("Game Over!\n" + survivorNumbersString));
                     }
                 }
-            }, 0, 200);
+            }, 0, iterationDelay);
         };
 
         view.setGameInitializer(gameInitializer);

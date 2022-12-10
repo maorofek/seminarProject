@@ -3,7 +3,6 @@ package com.seminarproject.view;
 import com.seminarproject.Program;
 import com.seminarproject.model.Person;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -26,17 +24,20 @@ public class View {
     Button startButton;
     Button stopButton;
     Slider slider;
-    SpinnerValueFactory<Integer> startingAt;
-    SpinnerValueFactory<Integer> howManySurvive;
+
+    Spinner<Integer> startingAtSpinner;
+    Spinner<Integer> howManySurviveSpinner;
     RadioButton clockwise;
 
-    Label message;
+    ComboBox<Integer> iterationDelayComboBox;
+
+    Label messageLbl;
 
     Image soldierImage;
 
     AnchorPane circleSpace;
-    private final int imageRadius;
-    private final int labelRadius;
+    private static final int IMAGE_RADIUS = 230;
+    private static final int LABEL_RADIUS = 50;
 
     private List<Person> people;
     private Runnable gameInitializer;
@@ -51,15 +52,19 @@ public class View {
     }
 
     public Integer getHowManySurvive() {
-        return howManySurvive.getValue();
+        return howManySurviveSpinner.getValue();
     }
 
     public Integer getStartingAtValue() {
-        return startingAt.getValue();
+        return startingAtSpinner.getValue();
+    }
+
+    public int getIterationDelay() {
+        return iterationDelayComboBox.getValue();
     }
 
     public void setMessage(String message) {
-        this.message.setText(message);
+        this.messageLbl.setText(message);
     }
 
     public void setPeople(List<Person> people) {
@@ -74,62 +79,66 @@ public class View {
 
     public View(Stage _primaryStage) {
         primaryStage = _primaryStage;
-        BorderPane root = new BorderPane();
+
+        messageLbl = new Label();
+        messageLbl.setFont(Font.font("Helvetica", FontWeight.BOLD, 15));
+
+        iterationDelayComboBox = new ComboBox<>();
+        iterationDelayComboBox.getItems().addAll(100, 200, 300, 400, 500, 1000, 2000, 3000, 4000, 5000);
+        iterationDelayComboBox.setValue(1000);
+
 
         VBox leftVBox = new VBox();
-        VBox rightVBox = new VBox();
+        VBox rightVBox = new VBox(25);
 
-        VBox buttonsVBox = new VBox();
-        VBox radioButtonsVBox = new VBox();
+        VBox buttonsVBox = new VBox(10);
+        VBox radioButtonsVBox = new VBox(10);
         VBox spinnerVBox = new VBox();
+
         VBox sliderVBox = new VBox();
-        HBox buttonsHbox = new HBox();
+        HBox buttonsHbox = new HBox(25);
         HBox sliderHbox = new HBox();
-        VBox messageVBox = new VBox();
+        VBox iterationDelayVBox = new VBox(10);
+
+        iterationDelayVBox.getChildren().addAll(new Label("Time between iterations (ms):"), iterationDelayComboBox);
+        buttonsHbox.getChildren().addAll(buttonsVBox, radioButtonsVBox, spinnerVBox);
+        rightVBox.getChildren().addAll(iterationDelayVBox, sliderHbox, buttonsHbox, messageLbl);
+        sliderHbox.getChildren().addAll(sliderVBox);
+
+        buttonsVBox.setAlignment(Pos.CENTER);
+        radioButtonsVBox.setAlignment(Pos.CENTER_LEFT);
+        rightVBox.setAlignment(Pos.CENTER);
+        leftVBox.setAlignment(Pos.CENTER);
+        buttonsHbox.setAlignment(Pos.BOTTOM_CENTER);
+        sliderVBox.setAlignment(Pos.CENTER);
+        sliderHbox.setAlignment(Pos.TOP_CENTER);
+        iterationDelayVBox.setAlignment(Pos.CENTER);
 
         rightVBox.setStyle("-fx-background-color: #9698a4 ;");
         leftVBox.setStyle("-fx-background-color: #212121;");
-
 
         circleSpace = new AnchorPane();
         circleSpace.setPrefHeight(leftVBox.getPrefHeight());
         circleSpace.setPrefWidth(leftVBox.getPrefWidth());
         circleSpace.setStyle("-fx-background-color: #212121;");
         leftVBox.getChildren().add(circleSpace);
-        leftVBox.setAlignment(Pos.CENTER);
 
-        slider = new Slider(0, 60, 7);
+        slider = new Slider(0, 50, 7);
         slider.setPrefWidth(350);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
         slider.setMajorTickUnit(5);
         slider.setBlockIncrement(1);
+        slider.setSnapToTicks(true);
 
-        Label sliderValue = new Label("7");
-        message = new Label();
-        message.setFont(Font.font("Helvetica", FontWeight.BOLD, 15));
-        messageVBox.getChildren().add(message);
-        messageVBox.setAlignment(Pos.CENTER);
-        messageVBox.setPadding(new Insets(50, 0, 0, 0));
+        Label sliderValue = new Label("Number of people: 7");
 
-        slider.valueProperty().addListener((observableValue, number, t1) -> {
-            sliderValue.setText(String.format("%.0f", t1.floatValue()));
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            sliderValue.setText(String.format("Number of people: %.0f", newValue.floatValue()));
             onSliderChanged();
         });
 
-        startingAt = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10);
-        startingAt.setValue(1);
-
-        howManySurvive = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10);
-        howManySurvive.setValue(1);
-
-
-        rightVBox.getChildren().addAll(sliderHbox, buttonsHbox, messageVBox);
         sliderVBox.getChildren().addAll(sliderValue, slider);
-        sliderVBox.setAlignment(Pos.CENTER);
-
-        sliderHbox.getChildren().addAll(sliderVBox);
-        sliderHbox.setAlignment(Pos.TOP_CENTER);
 
         startButton = new Button("Start");
         stopButton = new Button("Stop");
@@ -147,41 +156,42 @@ public class View {
         counterClockwise.setToggleGroup(toggleGroup);
         radioButtonsVBox.getChildren().addAll(clockwise, counterClockwise);
 
+        startingAtSpinner = new Spinner<>(1, 10, 1);
+        howManySurviveSpinner = new Spinner<>(1, 10, 1);
+
         spinnerVBox.getChildren().addAll(
-                new Label("start location"),
-                new Spinner<>(startingAt),
-                new Label("How many will survive"),
-                new Spinner<>(howManySurvive)
+                new Label("Starting number:"),
+                startingAtSpinner,
+                new Label("How many will survive:"),
+                howManySurviveSpinner
         );
 
-        buttonsHbox.setSpacing(25);
-        buttonsHbox.getChildren().addAll(buttonsVBox, radioButtonsVBox, spinnerVBox);
-
-        buttonsVBox.setSpacing(10);
-        radioButtonsVBox.setSpacing(10);
-
-        rightVBox.setAlignment(Pos.CENTER);
-
-        buttonsHbox.setAlignment(Pos.BOTTOM_CENTER);
-
-        soldierImage = new Image(Objects.requireNonNull(Program.class.getResourceAsStream("/images/gimli.png")),
-                                 50, 50, true, true);
-        imageRadius = 230;
-        labelRadius = 50;
-
-        initSoldierImages();
+        soldierImage = new Image(
+                Objects.requireNonNull(Program.class.getResourceAsStream("/images/gimli.png")),
+                50,
+                50,
+                true,
+                true
+        );
 
         SplitPane splitPane = new SplitPane();
         splitPane.getItems().addAll(leftVBox, rightVBox);
         splitPane.setDividerPositions(0.66f, 0.33f);
 
-        root.setCenter(splitPane);
-
-        Scene scene = new Scene(root, 1350, 650);
+        Scene scene = new Scene(splitPane, 1350, 650);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Josephus");
         primaryStage.setAlwaysOnTop(true);
         primaryStage.show();
+
+        initSoldierImages();
+    }
+
+    /**
+     * @return get an updated spinner value factory in accordance to the new number of people set by the slider.
+     */
+    private SpinnerValueFactory<Integer> getUpdatedSpinnerValueFactory() {
+        return new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Math.max(1,people.size()), 1);
     }
 
     /**
@@ -189,6 +199,12 @@ public class View {
      */
     public void onSliderChanged() {
         gameInitializer.run();
+
+        setMessage("");
+
+        startingAtSpinner.setValueFactory(getUpdatedSpinnerValueFactory());
+        howManySurviveSpinner.setValueFactory(getUpdatedSpinnerValueFactory());
+
         initSoldierImages();
         updateCircle();
     }
@@ -209,10 +225,10 @@ public class View {
         }
         for (int i = 0; i < people.size(); i++) {
             double angle = (((double) i) / people.size()) * 2 * Math.PI;
-            double xPos = imageRadius * Math.cos(angle) + 300;
-            double yPos = imageRadius * Math.sin(angle) + 260;
-            double labelXPos = labelRadius * Math.cos(angle) + 15;
-            double labelYPos = labelRadius * Math.sin(angle) + 20;
+            double xPos = IMAGE_RADIUS * Math.cos(angle) + 300;
+            double yPos = IMAGE_RADIUS * Math.sin(angle) + 260;
+            double labelXPos = LABEL_RADIUS * Math.cos(angle) + 15;
+            double labelYPos = LABEL_RADIUS * Math.sin(angle) + 20;
 
             circleSpace.getChildren().get(i).setLayoutX(xPos);
             circleSpace.getChildren().get(i).setLayoutY(yPos);
@@ -231,9 +247,10 @@ public class View {
 
     /**
      * draw a box with an image and a label for a person.
+     *
      * @param personNumber the number of the person (1-based index).
-     * @param xPos x position of the box
-     * @param yPos y position of the box
+     * @param xPos         x position of the box
+     * @param yPos         y position of the box
      * @return the box
      */
     public AnchorPane makeBox(int personNumber, double xPos, double yPos) {
@@ -250,6 +267,7 @@ public class View {
 
     /**
      * Add event handler to start button
+     *
      * @param eventHandler the event handler
      */
     public void addEventHandlerToStartButton(EventHandler<MouseEvent> eventHandler) {
@@ -258,6 +276,7 @@ public class View {
 
     /**
      * Add event handler to stop button
+     *
      * @param eventHandler the event handler
      */
     public void addEventHandlerToStopButton(EventHandler<MouseEvent> eventHandler) {
