@@ -124,7 +124,7 @@ public class View {
         leftVBox.getChildren().add(circleSpace);
         leftVBox.setPadding(new Insets(10, 10, 10, 100));
 
-        slider = new Slider(0, 50, 7);
+        slider = new Slider(1, 50, 7);
         slider.setPrefWidth(350);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
