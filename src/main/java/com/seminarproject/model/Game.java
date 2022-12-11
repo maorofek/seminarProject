@@ -39,7 +39,8 @@ public class Game {
     }
 
     /**
-     * kill the next person in the game.
+     * Kill the next person in the game.
+     * (simulates the current person killing the person next to him)
      */
     public void killNext() {
         if (isGameOver()) {
@@ -77,7 +78,8 @@ public class Game {
 
     /**
      * Builder class for Game.
-     * makes creating complex object much more readable and easier to maintain.
+     * Makes creating complex object much easier to maintain. (and more readable)
+     * @see <a href="https://en.wikipedia.org/wiki/Builder_pattern">Builder pattern</a>
      */
     public static final class GameBuilder {
         private int numberOfPeople;

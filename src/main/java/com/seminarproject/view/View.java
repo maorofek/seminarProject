@@ -15,21 +15,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class View {
     Stage primaryStage;
-    Button startButton;
-    Button stopButton;
+    Button startButton, resetButton;
     Slider slider;
 
-    Spinner<Integer> startingAtSpinner;
-    Spinner<Integer> howManySurviveSpinner;
-    RadioButton clockwise;
+    Spinner<Integer> startingAtSpinner, howManySurviveSpinner;
+    RadioButton clockwise, counterClockwise;
 
     ComboBox<Integer> iterationDelayComboBox;
 
@@ -85,7 +83,7 @@ public class View {
         messageLbl = new Label();
         messageLbl.setFont(Font.font("Helvetica", FontWeight.BOLD, 15));
         messageLbl.setWrapText(true);
-        messageLbl.setPrefWidth(300);
+        messageLbl.setPrefWidth(360);
 
         iterationDelayComboBox = new ComboBox<>();
         iterationDelayComboBox.getItems().addAll(1, 100, 200, 500, 1000, 2000, 5000);
@@ -144,16 +142,17 @@ public class View {
         sliderVBox.getChildren().addAll(sliderValue, slider);
 
         startButton = new Button("Start");
-        stopButton = new Button("Stop");
+        resetButton = new Button("Reset");
+        resetButton.setDisable(true);
 
         buttonsVBox.getChildren().addAll(
-                startButton
-//                stopButton // only in the next version... :)
+                startButton,
+                resetButton
         );
 
         clockwise = new RadioButton("clockwise");
         clockwise.setSelected(true);
-        RadioButton counterClockwise = new RadioButton("counter-clockwise");
+        counterClockwise = new RadioButton("counter-clockwise");
         ToggleGroup toggleGroup = new ToggleGroup();
         clockwise.setToggleGroup(toggleGroup);
         counterClockwise.setToggleGroup(toggleGroup);
@@ -194,7 +193,7 @@ public class View {
      * @return get an updated spinner value factory in accordance to the new number of people set by the slider.
      */
     private SpinnerValueFactory<Integer> getUpdatedSpinnerValueFactory() {
-        return new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Math.max(1,people.size()), 1);
+        return new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Math.max(1, people.size()), 1);
     }
 
     /**
@@ -282,8 +281,41 @@ public class View {
      *
      * @param eventHandler the event handler
      */
-    public void addEventHandlerToStopButton(EventHandler<MouseEvent> eventHandler) {
-        stopButton.setOnMouseClicked(eventHandler);
+    public void addEventHandlerToResetButton(EventHandler<MouseEvent> eventHandler) {
+        resetButton.setOnMouseClicked(eventHandler);
+    }
+
+
+    /**
+     * Disable input elements.
+     */
+    public void disableInput() {
+        setDisable(true);
+        resetButton.setDisable(false);
+    }
+
+    /**
+     * Enable input elements.
+     */
+    public void enableInput() {
+        setDisable(false);
+        resetButton.setDisable(true);
+    }
+
+    /**
+     * Set the disable state of all input elements.
+     * @param disable true to disable, false to enable.
+     */
+    private void setDisable(boolean disable) {
+        Arrays.asList(
+                slider,
+                startButton,
+                clockwise,
+                counterClockwise,
+                startingAtSpinner,
+                howManySurviveSpinner,
+                iterationDelayComboBox
+        ).forEach(node -> node.setDisable(disable));
     }
 
 }

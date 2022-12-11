@@ -13,7 +13,6 @@ public class Controller {
     Game game;
     Timer timer;
     int iterationDelay = 1000;
-    boolean running = false;
 
     /**
      * Our app's main controller, which is responsible for connecting the model and the view.
@@ -21,17 +20,16 @@ public class Controller {
      * @param view The view managing class of the app.
      */
     public Controller(View view) {
-        /*
-            TODO: maybe add stop / pause button.
-         */
-
         timer = new Timer();
 
-        Runnable updatePeopleInView = () -> view.setPeople(game.getPeople());
+        // a runnable that updates the view with the current state of the circle.
+        Runnable viewPeopleUpdater = () -> view.setPeople(game.getPeople());
 
+        // a runnable that initializes the game in the model and view according to the user's input.
         Runnable gameInitializer = () -> {
-            // update model
             timer.cancel();
+
+            // update model
             iterationDelay = view.getIterationDelay();
             game = GameBuilder.aGameWith()
                     .numberOfPeople(view.getSliderValue())
@@ -42,46 +40,49 @@ public class Controller {
 
             // update view
             view.setMessage("");
-            updatePeopleInView.run();
-        };
-
-        Runnable play = () -> {
-            timer.cancel();
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    game.killNext();
-                    updatePeopleInView.run();
-                    view.updateCircle();
-                    if (game.isGameOver()) {
-                        timer.cancel();
-
-                        List<Integer> survivorNumbers = game.getSurvivorNumbers();
-                        String survivorNumbersString = String.format(
-                                "The survivor number%s %s",
-                                survivorNumbers.size() > 1 ? "s are" : " is",
-                                survivorNumbers.size() > 1 ? survivorNumbers.toString() : survivorNumbers.get(0)
-                        );
-
-                        Platform.runLater(() -> view.setMessage("Game Over!\n" + survivorNumbersString));
-                    }
-                }
-            }, 0, iterationDelay);
+            viewPeopleUpdater.run();
         };
 
         view.setGameInitializer(gameInitializer);
 
         view.addEventHandlerToStartButton(event -> {
             gameInitializer.run();
-            play.run();
+            view.updateCircle();
+            view.disableInput();
+
+            timer.cancel();
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    game.killNext();
+                    viewPeopleUpdater.run();
+                    view.updateCircle();
+                    if (game.isGameOver()) {
+                        timer.cancel();
+
+                        List<Integer> survivorNumbers = game.getSurvivorNumbers();
+                        String survivorNumbersString = String.format(
+                                "The survivor number%s: %s",
+                                survivorNumbers.size() > 1 ? "s are" : " is",
+                                survivorNumbers.size() > 1 ? survivorNumbers.toString() : survivorNumbers.get(0)
+                        );
+
+                        Platform.runLater(() -> {
+                            view.setMessage("Game Over!\n" + survivorNumbersString);
+                            view.enableInput();
+                        });
+                    }
+                }
+            }, iterationDelay, iterationDelay);
         });
 
-//        view.addEventHandlerToStopButton(event -> { // only in the next version... :)
-//            // TODO add logic
-//            System.out.println("stop");
-//        });
-
+        view.addEventHandlerToResetButton(event -> {
+            timer.cancel();
+            view.enableInput();
+            gameInitializer.run();
+            view.updateCircle();
+        });
 
         view.onSliderChanged();
     }
