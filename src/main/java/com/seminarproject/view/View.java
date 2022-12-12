@@ -211,10 +211,13 @@ public class View {
         updateCircle();
     }
 
+    /**
+     * Add an image and a label for each person to the circle.
+     */
     private void initSoldierImages() {
         circleSpace.getChildren().clear();
         for (int i = 0; i < getSliderValue(); i++) {
-            circleSpace.getChildren().add(makeBox(i + 1, 300, 240));
+            circleSpace.getChildren().add(makeBox(i + 1));
         }
     }
 
@@ -226,24 +229,29 @@ public class View {
             return;
         }
         for (int i = 0; i < people.size(); i++) {
+            AnchorPane thePerson = (AnchorPane) circleSpace.getChildren().get(i);
+
+            // calculate the angle of the person in the circle based on his number out of the
+            // total number of people times 2π.
             double angle = (((double) i) / people.size()) * 2 * Math.PI;
+
+            // convert polar coordinates to cartesian coordinates
             double xPos = IMAGE_RADIUS * Math.cos(angle) + 300;
             double yPos = IMAGE_RADIUS * Math.sin(angle) + 260;
             double labelXPos = LABEL_RADIUS * Math.cos(angle) + 15;
             double labelYPos = LABEL_RADIUS * Math.sin(angle) + 20;
 
-            circleSpace.getChildren().get(i).setLayoutX(xPos);
-            circleSpace.getChildren().get(i).setLayoutY(yPos);
+            // use converted coordinates to set the position of the image.
+            thePerson.setLayoutX(xPos);
+            thePerson.setLayoutY(yPos);
 
-            if (people.get(i).isAlive()) {
-                circleSpace.getChildren().get(i).setOpacity(1);
-            } else {
-                circleSpace.getChildren().get(i).setOpacity(0.5);
-            }
+            // use converted coordinates to set the position of the label.
+            thePerson.getChildren().get(0).setLayoutX(labelXPos);
+            thePerson.getChildren().get(0).setLayoutY(labelYPos);
 
-            AnchorPane plx = (AnchorPane) circleSpace.getChildren().get(i);
-            plx.getChildren().get(0).setLayoutX(labelXPos);
-            plx.getChildren().get(0).setLayoutY(labelYPos);
+            // set the opacity of the image and label based on whether the person is alive or not.
+            double opacity = people.get(i).isAlive() ? 1 : 0.5;
+            thePerson.setOpacity(opacity);
         }
     }
 
@@ -251,20 +259,16 @@ public class View {
      * draw a box with an image and a label for a person.
      *
      * @param personNumber the number of the person (1-based index).
-     * @param xPos         x position of the box
-     * @param yPos         y position of the box
      * @return the box
      */
-    public AnchorPane makeBox(int personNumber, double xPos, double yPos) {
+    public AnchorPane makeBox(int personNumber) {
         ImageView personImage = new ImageView(soldierImage);
-        Label lblHead = new Label("" + personNumber);
-        lblHead.setStyle("-fx-text-fill: white;");
-        lblHead.setFont(Font.font("", FontWeight.BOLD, 12));
-        AnchorPane anchorSoldier = new AnchorPane();
-        anchorSoldier.setLayoutX(xPos);
-        anchorSoldier.setLayoutY(yPos);
-        anchorSoldier.getChildren().addAll(lblHead, personImage);
-        return anchorSoldier;
+
+        Label personNumberLabel = new Label("" + personNumber);
+        personNumberLabel.setStyle("-fx-text-fill: white;");
+        personNumberLabel.setFont(Font.font("", FontWeight.BOLD, 12));
+
+        return new AnchorPane(personNumberLabel, personImage);
     }
 
     /**
